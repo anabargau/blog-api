@@ -16,9 +16,7 @@ exports.login_post = (req, res, next) => {
       return next(err);
     }
     if (!user) {
-      return res
-        .status(400)
-        .json({ errors: [{ message: 'Invalid username' }] });
+      return res.status(400).json({ errors: [{ msg: 'Invalid username' }] });
     }
     bcrypt.compare(password, user.password, (err, result) => {
       if (result) {
@@ -30,7 +28,7 @@ exports.login_post = (req, res, next) => {
           user,
         });
       } else {
-        return res.sattus(400).json({ errors: [{ msg: 'Invalid username' }] });
+        return res.status(400).json({ errors: [{ msg: 'Invalid password' }] });
       }
     });
   });
@@ -60,10 +58,9 @@ exports.signup_post = [
       });
     }),
   body('password', 'Password must not be empty').isLength({ min: 1 }),
-  body(
-    'confirm_password',
-    'Confirm password field must have the same value as the password field'
-  ).custom((value, { req }) => value === req.body.password),
+  body('confirm_password', 'Confirm password does not match password').custom(
+    (value, { req }) => value === req.body.password
+  ),
   (req, res, next) => {
     const errors = validationResult(req);
     bcrypt.hash(req.body.password, 10, (err, hash_password) => {
@@ -86,7 +83,7 @@ exports.signup_post = [
         }
         const secret = process.env.SECRET_KEY;
         jwt.sign({ saved_user }, secret, { expiresIn: '1d' });
-        return res.redirect('http://localhost:3000');
+        res.json({ redirectURL: 'http://localhost:3000', errors: [] });
       });
     });
   },

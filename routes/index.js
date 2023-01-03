@@ -11,6 +11,7 @@ router.get('/', function (req, res, next) {
       }
       res.json({
         posts,
+        user: res.locals.currentUser,
       });
     });
   /* if (res.locals.currentUser) {
